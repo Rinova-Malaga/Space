@@ -4,6 +4,7 @@
 	<style>
       h1 {
           font-family:courier;
+          color: lavender;
 			margin-top:15%;
 		  font-size: 45pt;
           text-align: center;
@@ -58,14 +59,7 @@
 <h1 id="spaceName">just some space</h1>
 <button id="genNew">Let's go.</button>
 <div class="main"></div>
-<script
-const setBg = () => {
-  const randomColor = Math.floor(Math.random()*16777215).toString(16);
-  document.body.style.backgroundColor = "#" + randomColor;
-}
-
-genNew.addEventListener("click", setBg);
-setBg();
+<script>
 </script>
 </body>
 </html>
