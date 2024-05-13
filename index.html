@@ -4,7 +4,6 @@
 	<style>
       h1 {
           font-family:courier;
-          color:violet;
 			margin-top:15%;
 		  font-size: 45pt;
           text-align: center;
@@ -57,6 +56,17 @@
 <img class="logoTop" src="https://www.rinova.co.uk/wp-content/uploads/2020/12/rinova_logo_withtagline.png">
 </a>
 <h1>just some space</h1>
+<button id="genNew">Let's go.</button>
 <div class="main"></div>
+<script
+const setBg = () => {
+  const randomColor = Math.floor(Math.random()*16777215).toString(16);
+  document.h1.style.color = "#" + randomColor;
+  color.innerHTML = "#" + randomColor;
+}
+
+genNew.addEventListener("click", setCol);
+setCol();
+</script>
 </body>
 </html>
