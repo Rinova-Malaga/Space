@@ -61,12 +61,12 @@
 <script
 const setBg = () => {
   const randomColor = Math.floor(Math.random()*16777215).toString(16);
-  document.spaceName.style.color = "#" + randomColor;
+  document.body.style.backgroundColor = "#" + randomColor;
   color.innerHTML = "#" + randomColor;
 }
 
-genNew.addEventListener("click", setCol);
-setCol();
+genNew.addEventListener("click", setBg);
+setBg();
 </script>
 </body>
 </html>
