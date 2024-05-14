@@ -4,7 +4,7 @@
 	<style>
       h1 {
           font-family:courier;
-          color: lavender;
+          color: #7a5d4a;
 			margin-top:15%;
 		  font-size: 45pt;
           text-align: center;
@@ -19,6 +19,29 @@
       	padding: 10px;
         width: 200px
         }
+
+    button {
+    aspect-ratio: 1/1;
+    min-width: 80px;
+    display: block;
+    margin: auto;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border: none;
+    -webkit-border-radius: 50%; 
+    -moz-border-radius: 50%; 
+    border-radius:50%; 
+    color: #7a5d4a; 
+    font-size: 40px;
+    
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    }
+    button:hover {
+    color: #523e31;
+    transition: background-color 0.2s ease-in-out;
+    }
 		body{
     background-color: #fff;
 		overflow-x: hidden;
@@ -57,8 +80,18 @@
 <img class="logoTop" src="https://www.rinova.co.uk/wp-content/uploads/2020/12/rinova_logo_withtagline.png">
 </a>
 <h1 id="spaceName">just some space</h1>
+<button id="genNew">⚄</button>
 <div class="main"></div>
 <script>
+	const setBg = () => {
+	for (let i = 0; i < 30; i++){ 
+		setTimeout(() => {
+  		const randomColor = Math.floor(Math.random()*16777215).toString(16);
+  		document.getElementsByTagName('H1')[0].style.color = "#" + randomColor;
+  	}, i*20);
+  };
+};
+genNew.addEventListener("click", setBg);
 </script>
 </body>
 </html>
