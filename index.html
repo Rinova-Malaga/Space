@@ -196,6 +196,138 @@
 	  }
 	}
 document.querySelector('.spaceHead').addEventListener("click", setBg);
+
+// Cat Easter Egg — type "meow" anywhere to trigger
+(function() {
+  const TRIGGER = ['m','e','o','w'];
+  let buf = [];
+  let active = false;
+
+  const SCALE = 8, COLS = 16, ROWS = 13;
+  const _ = null, K = '#1a1a1a', T = '#d4813a', P = '#f4a2b5', W = '#ffffff';
+
+  // Pixel art frames — head at top, neck at bottom (cat peeks up from screen edge)
+  const frameOpen = [
+    [_,_,K,K,_,_,_,_,_,_,_,_,K,K,_,_],  // ears
+    [_,K,T,P,K,_,_,_,_,_,_,K,P,T,K,_],  // ear inner
+    [K,T,T,T,T,K,_,_,_,_,K,T,T,T,T,K],  // top head
+    [K,T,T,T,T,T,K,K,K,K,T,T,T,T,T,K],  // face
+    [K,T,W,W,T,T,T,T,T,T,T,T,W,W,T,K],  // eyes open top
+    [K,T,W,K,T,T,T,T,T,T,T,T,W,K,T,K],  // pupils
+    [K,T,W,W,T,T,T,T,T,T,T,T,W,W,T,K],  // eyes open bottom
+    [K,T,T,T,T,T,T,P,T,T,T,T,T,T,T,K],  // nose
+    [K,T,T,T,T,T,P,_,P,T,T,T,T,T,T,K],  // mouth (smile)
+    [K,T,T,T,T,T,T,_,T,T,T,T,T,T,T,K],  // chin
+    [K,T,T,T,T,T,T,T,T,T,T,T,T,T,T,K],  // neck
+    [_,K,K,K,K,K,K,K,K,K,K,K,K,K,K,_],  // neck bottom
+    [_,_,K,K,K,K,K,K,K,K,K,K,K,K,_,_],  // body top edge
+  ];
+
+  const frameClosed = frameOpen.map((row, y) => {
+    if (y === 4) return [K,T,T,T,T,T,T,T,T,T,T,T,T,T,T,K];
+    if (y === 5) return [K,T,K,K,T,T,T,T,T,T,T,T,K,K,T,K]; // closed eyes
+    if (y === 6) return [K,T,T,T,T,T,T,T,T,T,T,T,T,T,T,K];
+    return row;
+  });
+
+  const frameSide = frameOpen.map((row, y) => {
+    if (y === 5) return [K,T,T,W,T,T,T,T,T,T,T,W,T,T,T,K]; // look-side pupils
+    return row;
+  });
+
+  function draw(ctx, frame) {
+    ctx.clearRect(0, 0, COLS * SCALE, ROWS * SCALE);
+    frame.forEach((row, y) => {
+      row.forEach((color, x) => {
+        if (color) {
+          ctx.fillStyle = color;
+          ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
+        }
+      });
+    });
+  }
+
+  function showCat() {
+    if (active) return;
+    active = true;
+
+    // Inject wiggle animation once
+    if (!document.getElementById('catEggStyle')) {
+      const s = document.createElement('style');
+      s.id = 'catEggStyle';
+      s.textContent = `
+        @keyframes catWiggle {
+          0%,100% { transform: translateX(-50%) rotate(0deg); }
+          20%      { transform: translateX(calc(-50% - 6px)) rotate(-4deg); }
+          40%      { transform: translateX(calc(-50% + 6px)) rotate(4deg); }
+          60%      { transform: translateX(calc(-50% - 4px)) rotate(-2deg); }
+          80%      { transform: translateX(calc(-50% + 4px)) rotate(2deg); }
+        }`;
+      document.head.appendChild(s);
+    }
+
+    const el = document.createElement('div');
+    el.style.cssText = `
+      position:fixed;
+      bottom:${-(ROWS * SCALE)}px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:99999;
+      transition:bottom 0.7s cubic-bezier(0.34,1.56,0.64,1);
+      pointer-events:none;
+    `;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = COLS * SCALE;
+    canvas.height = ROWS * SCALE;
+    canvas.style.cssText = 'image-rendering:pixelated;image-rendering:crisp-edges;display:block;';
+    el.appendChild(canvas);
+    document.body.appendChild(el);
+
+    const ctx = canvas.getContext('2d');
+    draw(ctx, frameOpen);
+
+    // Slide up — peek head over bottom edge
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.bottom = '-16px';
+    }));
+
+    // Animation sequence after peek-in
+    const seq = [
+      [600,  frameClosed],  // blink
+      [800,  frameOpen],
+      [1100, frameSide],    // glance side
+      [1400, frameOpen],
+      [1700, frameClosed],  // blink
+      [1900, frameOpen],
+      [2200, frameClosed],  // blink
+      [2400, frameOpen],
+    ];
+    seq.forEach(([t, frame]) => setTimeout(() => draw(ctx, frame), t));
+
+    // Wiggle after settling
+    setTimeout(() => {
+      el.style.transition = 'bottom 0.7s cubic-bezier(0.34,1.56,0.64,1)';
+      el.style.animation = 'catWiggle 0.5s ease-in-out';
+    }, 1000);
+
+    // Slide back down
+    setTimeout(() => {
+      el.style.transition = 'bottom 0.55s ease-in';
+      el.style.animation = '';
+      el.style.bottom = `${-(ROWS * SCALE + 10)}px`;
+      setTimeout(() => { el.remove(); active = false; }, 650);
+    }, 3400);
+  }
+
+  document.addEventListener('keydown', e => {
+    const k = e.key.length === 1 ? e.key.toLowerCase() : null;
+    if (!k) return;
+    buf.push(k);
+    if (buf.length > TRIGGER.length) buf.shift();
+    if (buf.join('') === TRIGGER.join('')) { showCat(); buf = []; }
+  });
+})();
 </script>
 </body>
 </html>
