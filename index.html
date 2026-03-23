@@ -251,29 +251,33 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
     if (active) return;
     active = true;
 
-    // Inject wiggle animation once
+    const hideY = ROWS * SCALE;       // 104px — fully below edge
+    const peekY = 16;                 // 16px below edge — shows 88px of cat
+
+    // Inject wiggle keyframes once
     if (!document.getElementById('catEggStyle')) {
       const s = document.createElement('style');
       s.id = 'catEggStyle';
       s.textContent = `
         @keyframes catWiggle {
-          0%,100% { transform: translateX(-50%) rotate(0deg); }
-          20%      { transform: translateX(calc(-50% - 6px)) rotate(-4deg); }
-          40%      { transform: translateX(calc(-50% + 6px)) rotate(4deg); }
-          60%      { transform: translateX(calc(-50% - 4px)) rotate(-2deg); }
-          80%      { transform: translateX(calc(-50% + 4px)) rotate(2deg); }
+          0%,100% { transform: translateX(-50%) translateY(${peekY}px) rotate(0deg); }
+          20%      { transform: translateX(calc(-50% - 6px)) translateY(${peekY}px) rotate(-4deg); }
+          40%      { transform: translateX(calc(-50% + 6px)) translateY(${peekY}px) rotate(4deg); }
+          60%      { transform: translateX(calc(-50% - 4px)) translateY(${peekY}px) rotate(-2deg); }
+          80%      { transform: translateX(calc(-50% + 4px)) translateY(${peekY}px) rotate(2deg); }
         }`;
       document.head.appendChild(s);
     }
 
     const el = document.createElement('div');
+    // Use transform instead of bottom so body overflow:hidden can't clip us
     el.style.cssText = `
       position:fixed;
-      bottom:${-(ROWS * SCALE)}px;
+      bottom:0;
       left:50%;
-      transform:translateX(-50%);
+      transform:translateX(-50%) translateY(${hideY}px);
       z-index:99999;
-      transition:bottom 0.7s cubic-bezier(0.34,1.56,0.64,1);
+      transition:transform 0.7s cubic-bezier(0.34,1.56,0.64,1);
       pointer-events:none;
     `;
 
@@ -289,7 +293,7 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
 
     // Slide up — peek head over bottom edge
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      el.style.bottom = '-16px';
+      el.style.transform = `translateX(-50%) translateY(${peekY}px)`;
     }));
 
     // Animation sequence after peek-in
@@ -307,15 +311,15 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
 
     // Wiggle after settling
     setTimeout(() => {
-      el.style.transition = 'bottom 0.7s cubic-bezier(0.34,1.56,0.64,1)';
+      el.style.transition = 'none';
       el.style.animation = 'catWiggle 0.5s ease-in-out';
     }, 1000);
 
     // Slide back down
     setTimeout(() => {
-      el.style.transition = 'bottom 0.55s ease-in';
       el.style.animation = '';
-      el.style.bottom = `${-(ROWS * SCALE + 10)}px`;
+      el.style.transition = 'transform 0.55s ease-in';
+      el.style.transform = `translateX(-50%) translateY(${hideY + 10}px)`;
       setTimeout(() => { el.remove(); active = false; }, 650);
     }, 3400);
   }
@@ -327,6 +331,8 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
     if (buf.length > TRIGGER.length) buf.shift();
     if (buf.join('') === TRIGGER.join('')) { showCat(); buf = []; }
   });
+
+  console.log('%c🐱 psst... type "meow" for a surprise', 'color:#d4813a;font-size:13px;font-family:courier');
 })();
 </script>
 </body>
