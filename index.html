@@ -197,14 +197,17 @@
 	}
 document.querySelector('.spaceHead').addEventListener("click", setBg);
 
-// Cat Easter Egg — type "meow" anywhere to trigger
+// Cat Easter Eggs — type "meow" or "spacemeow"
 (function() {
-  const TRIGGER = ['m','e','o','w'];
+  const MEOW = 'meow';
+  const SPACE_MEOW = 'spacemeow';
   let buf = [];
   let active = false;
+  let spaceActive = false;
 
-  const SCALE = 8, COLS = 16, ROWS = 13;
+  const SCALE = 8, SC = 6, COLS = 16, ROWS = 13, ROWS_S = 20;
   const _ = null, K = '#1a1a1a', T = '#d4813a', P = '#f4a2b5', W = '#ffffff';
+  const B = '#cce8f5', V = '#5b9bd5', C = '#e0e0e0', G = '#999999';
 
   // Pixel art frames — head at top, neck at bottom (cat peeks up from screen edge)
   const frameOpen = [
@@ -235,13 +238,37 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
     return row;
   });
 
-  function draw(ctx, frame) {
-    ctx.clearRect(0, 0, COLS * SCALE, ROWS * SCALE);
+  // Space suit cat (16 cols × 20 rows, drawn at SC=6px per pixel)
+  const spaceCat = [
+    [_,_,_,K,K,K,K,K,K,K,K,K,K,_,_,_],  // helmet top arc
+    [_,_,K,V,V,V,V,V,V,V,V,V,V,K,_,_],  // helmet rim top
+    [_,K,V,B,B,B,B,B,B,B,B,B,B,V,K,_],  // helmet glass
+    [K,V,B,B,K,T,P,K,K,P,T,K,B,B,V,K],  // ears inside helmet
+    [K,V,B,B,K,T,T,T,T,T,T,K,B,B,V,K],  // ear tops
+    [K,V,B,T,T,T,T,T,T,T,T,T,T,B,V,K],  // head
+    [K,V,B,T,W,W,T,T,T,T,W,W,T,B,V,K],  // eyes
+    [K,V,B,T,W,K,T,T,T,T,W,K,T,B,V,K],  // pupils
+    [K,V,B,T,W,W,T,T,T,T,W,W,T,B,V,K],  // eyes bottom
+    [K,V,B,T,T,T,T,P,T,T,T,T,T,B,V,K],  // nose
+    [K,V,B,T,T,T,P,_,P,T,T,T,T,B,V,K],  // mouth
+    [K,V,B,B,B,B,B,B,B,B,B,B,B,B,V,K],  // helmet bottom
+    [_,K,V,V,V,V,V,V,V,V,V,V,V,V,K,_],  // helmet rim bottom
+    [_,_,K,K,K,C,C,C,C,C,C,K,K,K,_,_],  // collar / neck ring
+    [_,K,C,C,C,C,C,C,C,C,C,C,C,C,K,_],  // suit top
+    [K,C,C,C,G,G,C,C,C,C,G,G,C,C,C,K],  // chest panel
+    [K,C,C,C,G,G,C,C,C,C,G,G,C,C,C,K],  // chest panel
+    [K,C,C,C,C,C,C,C,C,C,C,C,C,C,C,K],  // suit lower
+    [_,K,C,G,K,_,_,C,C,_,_,K,G,C,K,_],  // legs
+    [_,_,K,K,_,_,_,K,K,_,_,_,K,K,_,_],  // boots
+  ];
+
+  function draw(ctx, frame, scale) {
+    ctx.clearRect(0, 0, frame[0].length * scale, frame.length * scale);
     frame.forEach((row, y) => {
       row.forEach((color, x) => {
         if (color) {
           ctx.fillStyle = color;
-          ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
+          ctx.fillRect(x * scale, y * scale, scale, scale);
         }
       });
     });
@@ -289,7 +316,7 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
     document.body.appendChild(el);
 
     const ctx = canvas.getContext('2d');
-    draw(ctx, frameOpen);
+    draw(ctx, frameOpen, SCALE);
 
     // Slide up — peek head over bottom edge
     requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -307,7 +334,7 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
       [2200, frameClosed],  // blink
       [2400, frameOpen],
     ];
-    seq.forEach(([t, frame]) => setTimeout(() => draw(ctx, frame), t));
+    seq.forEach(([t, frame]) => setTimeout(() => draw(ctx, frame, SCALE), t));
 
     // Wiggle after settling
     setTimeout(() => {
@@ -324,15 +351,72 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
     }, 3400);
   }
 
+  function showSpaceCat() {
+    if (spaceActive) return;
+    spaceActive = true;
+
+    if (!document.getElementById('spaceCatStyle')) {
+      const s = document.createElement('style');
+      s.id = 'spaceCatStyle';
+      s.textContent = `
+        @keyframes spaceCatFloat {
+          0%   { transform:translateX(-110px) translateY(0px) rotate(-8deg); opacity:0; }
+          8%   { opacity:1; }
+          20%  { transform:translateX(20vw) translateY(-18px) rotate(3deg); }
+          40%  { transform:translateX(40vw) translateY(12px) rotate(-4deg); }
+          60%  { transform:translateX(60vw) translateY(-15px) rotate(5deg); }
+          80%  { transform:translateX(80vw) translateY(8px) rotate(-2deg); }
+          92%  { opacity:1; }
+          100% { transform:translateX(calc(100vw + 110px)) translateY(0px) rotate(6deg); opacity:0; }
+        }
+        @keyframes spaceCatFloatRTL {
+          0%   { transform:translateX(calc(100vw + 110px)) translateY(0px) rotate(8deg); opacity:0; }
+          8%   { opacity:1; }
+          20%  { transform:translateX(80vw) translateY(-18px) rotate(-3deg); }
+          40%  { transform:translateX(60vw) translateY(12px) rotate(4deg); }
+          60%  { transform:translateX(40vw) translateY(-15px) rotate(-5deg); }
+          80%  { transform:translateX(20vw) translateY(8px) rotate(2deg); }
+          92%  { opacity:1; }
+          100% { transform:translateX(-110px) translateY(0px) rotate(-6deg); opacity:0; }
+        }`;
+      document.head.appendChild(s);
+    }
+
+    const el = document.createElement('div');
+    const topPct = 15 + Math.floor(Math.random() * 45); // 15–60% from top
+    const rtl = Math.random() < 0.5;
+    el.style.cssText = `
+      position:fixed;
+      top:${topPct}%;
+      left:0;
+      z-index:99999;
+      pointer-events:none;
+      animation:${rtl ? 'spaceCatFloatRTL' : 'spaceCatFloat'} 5s ease-in-out forwards;
+    `;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = COLS * SC;
+    canvas.height = ROWS_S * SC;
+    canvas.style.cssText = 'image-rendering:pixelated;image-rendering:crisp-edges;display:block;';
+    el.appendChild(canvas);
+    document.body.appendChild(el);
+
+    draw(canvas.getContext('2d'), spaceCat, SC);
+
+    setTimeout(() => { el.remove(); spaceActive = false; }, 5500);
+  }
+
   document.addEventListener('keydown', e => {
     const k = e.key.length === 1 ? e.key.toLowerCase() : null;
     if (!k) return;
     buf.push(k);
-    if (buf.length > TRIGGER.length) buf.shift();
-    if (buf.join('') === TRIGGER.join('')) { showCat(); buf = []; }
+    if (buf.length > SPACE_MEOW.length) buf.shift();
+    const s = buf.join('');
+    if (s.endsWith(SPACE_MEOW)) { showSpaceCat(); buf = []; }
+    else if (s.endsWith(MEOW)) { showCat(); buf = []; }
   });
 
-  console.log('%c🐱 psst... type "meow" for a surprise', 'color:#d4813a;font-size:13px;font-family:courier');
+  console.log('%c🐱 type "meow" · 🚀 type "spacemeow"', 'color:#d4813a;font-size:13px;font-family:courier');
 })();
 </script>
 </body>
