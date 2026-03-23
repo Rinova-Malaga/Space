@@ -205,7 +205,7 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
   let active = false;
   let spaceActive = false;
 
-  const SCALE = 8, SC = 6, COLS = 16, ROWS = 13, ROWS_S = 20;
+  const SCALE = 8, SC = 6, COLS = 16, ROWS = 13, ROWS_S = 23;
   const _ = null, K = '#1a1a1a', T = '#d4813a', P = '#f4a2b5', W = '#ffffff';
   const B = '#cce8f5', V = '#5b9bd5', C = '#e0e0e0', G = '#999999';
 
@@ -238,28 +238,33 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
     return row;
   });
 
-  // Space suit cat (16 cols × 20 rows, drawn at SC=6px per pixel)
+  // Space suit cat (16 cols × 23 rows, drawn at SC=6px per pixel)
   const spaceCat = [
-    [_,_,_,K,K,K,K,K,K,K,K,K,K,_,_,_],  // helmet top arc
-    [_,_,K,V,V,V,V,V,V,V,V,V,V,K,_,_],  // helmet rim top
-    [_,K,V,B,B,B,B,B,B,B,B,B,B,V,K,_],  // helmet glass
-    [K,V,B,B,K,T,P,K,K,P,T,K,B,B,V,K],  // ears inside helmet
-    [K,V,B,B,K,T,T,T,T,T,T,K,B,B,V,K],  // ear tops
-    [K,V,B,T,T,T,T,T,T,T,T,T,T,B,V,K],  // head
-    [K,V,B,T,W,W,T,T,T,T,W,W,T,B,V,K],  // eyes
-    [K,V,B,T,W,K,T,T,T,T,W,K,T,B,V,K],  // pupils
-    [K,V,B,T,W,W,T,T,T,T,W,W,T,B,V,K],  // eyes bottom
-    [K,V,B,T,T,T,T,P,T,T,T,T,T,B,V,K],  // nose
-    [K,V,B,T,T,T,P,_,P,T,T,T,T,B,V,K],  // mouth
-    [K,V,B,B,B,B,B,B,B,B,B,B,B,B,V,K],  // helmet bottom
-    [_,K,V,V,V,V,V,V,V,V,V,V,V,V,K,_],  // helmet rim bottom
-    [_,_,K,K,K,C,C,C,C,C,C,K,K,K,_,_],  // collar / neck ring
-    [_,K,C,C,C,C,C,C,C,C,C,C,C,C,K,_],  // suit top
-    [K,C,C,C,G,G,C,C,C,C,G,G,C,C,C,K],  // chest panel
-    [K,C,C,C,G,G,C,C,C,C,G,G,C,C,C,K],  // chest panel
-    [K,C,C,C,C,C,C,C,C,C,C,C,C,C,C,K],  // suit lower
-    [_,K,C,G,K,_,_,C,C,_,_,K,G,C,K,_],  // legs
-    [_,_,K,K,_,_,_,K,K,_,_,_,K,K,_,_],  // boots
+    // --- helmet ---
+    [_,_,_,K,K,K,K,K,K,K,K,K,K,_,_,_],  //  0: helmet top arc
+    [_,_,K,V,V,V,V,V,V,V,V,V,V,K,_,_],  //  1: helmet rim top
+    [_,K,V,B,B,B,B,B,B,B,B,B,B,V,K,_],  //  2: helmet glass
+    [K,V,B,B,K,T,P,K,K,P,T,K,B,B,V,K],  //  3: ears inside helmet
+    [K,V,B,B,K,T,T,T,T,T,T,K,B,B,V,K],  //  4: ear tops
+    [K,V,B,T,T,T,T,T,T,T,T,T,T,B,V,K],  //  5: head
+    [K,V,B,T,W,W,T,T,T,T,W,W,T,B,V,K],  //  6: eyes
+    [K,V,B,T,W,K,T,T,T,T,W,K,T,B,V,K],  //  7: pupils
+    [K,V,B,T,W,W,T,T,T,T,W,W,T,B,V,K],  //  8: eyes bottom
+    [K,V,B,T,T,T,T,P,T,T,T,T,T,B,V,K],  //  9: nose
+    [K,V,B,T,T,T,P,_,P,T,T,T,T,B,V,K],  // 10: mouth
+    [K,V,B,B,B,B,B,B,B,B,B,B,B,B,V,K],  // 11: helmet bottom
+    [_,K,V,V,V,V,V,V,V,V,V,V,V,V,K,_],  // 12: helmet rim bottom
+    // --- body ---
+    [_,_,K,K,K,C,C,C,C,C,C,K,K,K,_,_],  // 13: collar / neck ring
+    [_,_,K,C,C,C,C,C,C,C,C,C,C,K,_,_],  // 14: suit top (narrow — oval shape)
+    [C,C,K,C,C,C,C,C,C,C,C,C,C,K,C,C],  // 15: paw-arms extend to canvas edges
+    [C,C,K,C,C,C,C,C,C,C,C,C,C,K,C,C],  // 16: paw-arms (2px thick)
+    [_,K,C,C,C,G,C,C,C,C,G,C,C,C,K,_],  // 17: round belly (widest) + suit dots
+    [_,K,C,C,C,C,C,C,C,C,C,C,C,K,T,K],  // 18: lower belly + tail base peeks out
+    [_,_,K,K,C,C,K,_,K,C,C,K,_,T,T,K],  // 19: short cat legs + tail
+    [_,_,_,K,C,C,K,_,K,C,C,K,T,T,K,_],  // 20: rounded paws + tail curves
+    [_,_,_,K,K,K,_,_,K,K,K,T,T,K,_,_],  // 21: paw bases + tail sweeps right
+    [_,_,_,_,_,_,_,_,_,_,K,T,K,_,_,_],  // 22: tail tip curls down
   ];
 
   function draw(ctx, frame, scale) {
