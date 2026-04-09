@@ -204,10 +204,12 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
   let buf = [];
   let active = false;
   let spaceActive = false;
+  let leet = false;
 
   const SCALE = 8, SC = 6, COLS = 16, ROWS = 13, ROWS_S = 23;
   const _ = null, K = '#1a1a1a', T = '#d4813a', P = '#f4a2b5', W = '#ffffff';
   const B = '#cce8f5', V = '#5b9bd5', C = '#e0e0e0', G = '#999999';
+  const DG = '#0a2200', RG = '#00aa00', MG = '#00ff41', LK = '#aaaaaa';
 
   // Pixel art frames — head at top, neck at bottom (cat peeks up from screen edge)
   const frameOpen = [
@@ -411,6 +413,110 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
     setTimeout(() => { el.remove(); spaceActive = false; }, 5500);
   }
 
+  // 1337 easter egg — cat with matrix sunglasses + laptop
+  const hackCat = [
+    [_,_,K,K,_,_,_,_,_,_,_,_,K,K,_,_],           //  0: ears
+    [_,K,T,P,K,_,_,_,_,_,_,K,P,T,K,_],           //  1: ear inner
+    [K,T,T,T,T,K,_,_,_,_,K,T,T,T,T,K],           //  2: head top
+    [K,T,T,T,T,T,K,K,K,K,T,T,T,T,T,K],           //  3: face
+    [K,T,T,DG,DG,DG,DG,K,K,DG,DG,DG,DG,T,T,K],  //  4: sunglasses top
+    [K,T,T,DG,RG,DG,DG,K,K,DG,DG,RG,DG,T,T,K],  //  5: sunglasses + reflections
+    [K,T,T,DG,DG,DG,DG,K,K,DG,DG,DG,DG,T,T,K],  //  6: sunglasses bottom
+    [K,T,T,T,T,T,T,P,T,T,T,T,T,T,T,K],           //  7: nose
+    [K,T,T,T,T,T,P,_,P,T,T,T,T,T,T,K],           //  8: smirk
+    [K,T,T,T,T,T,T,_,T,T,T,T,T,T,T,K],           //  9: chin
+    [_,K,K,K,K,K,K,K,K,K,K,K,K,K,K,_],           // 10: neck
+    [_,_,_,K,K,K,K,K,K,K,K,K,K,_,_,_],           // 11: screen top bezel
+    [_,_,_,K,MG,MG,MG,MG,MG,MG,MG,MG,K,_,_,_],  // 12: screen (green)
+    [_,_,_,K,MG,K,K,MG,MG,K,K,MG,K,_,_,_],      // 13: code line
+    [_,_,_,K,MG,K,MG,MG,MG,MG,K,MG,K,_,_,_],    // 14: code line
+    [_,_,_,K,MG,MG,MG,K,K,MG,MG,MG,K,_,_,_],    // 15: code line
+    [_,_,_,K,K,K,K,K,K,K,K,K,K,_,_,_],           // 16: screen bottom bezel
+    [_,K,K,K,K,K,K,K,K,K,K,K,K,K,K,_],           // 17: keyboard body
+    [_,K,LK,LK,LK,LK,LK,LK,LK,LK,LK,LK,LK,LK,K,_],  // 18: keys
+  ];
+
+  function show1337() {
+    if (leet) return;
+    leet = true;
+
+    const HS = 8, HR = hackCat.length;
+
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      z-index:99999; background:#000;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      opacity:0; transition:opacity 0.4s; cursor:pointer;
+    `;
+
+    const rain = document.createElement('canvas');
+    rain.width = window.innerWidth;
+    rain.height = window.innerHeight;
+    rain.style.cssText = 'position:absolute; top:0; left:0;';
+
+    const catCv = document.createElement('canvas');
+    catCv.width = COLS * HS;
+    catCv.height = HR * HS;
+    catCv.style.cssText = `
+      image-rendering:pixelated; image-rendering:crisp-edges;
+      display:block; position:relative; z-index:1;
+      opacity:0; transition:opacity 0.4s;
+      box-shadow:0 0 24px #00ff41, 0 0 48px #003300;
+    `;
+
+    const txt = document.createElement('div');
+    txt.textContent = '[ ACCESS GRANTED ]';
+    txt.style.cssText = `
+      color:#00ff41; font:bold 15px monospace; letter-spacing:5px;
+      text-shadow:0 0 8px #00ff41; position:relative; z-index:1;
+      margin-top:12px; opacity:0; transition:opacity 0.4s;
+    `;
+
+    const sub = document.createElement('div');
+    sub.textContent = '< 1337 5P34K 3N4BL3D >';
+    sub.style.cssText = `
+      color:#007700; font:11px monospace; letter-spacing:2px;
+      position:relative; z-index:1; margin-top:5px;
+      opacity:0; transition:opacity 0.4s;
+    `;
+
+    overlay.append(rain, catCv, txt, sub);
+    document.body.appendChild(overlay);
+    draw(catCv.getContext('2d'), hackCat, HS);
+
+    // Matrix rain
+    const rctx = rain.getContext('2d');
+    const rchars = 'アイウエオカキクケコサシスセソ0123456789ABCDEF<>/|{}[]!=';
+    const fsz = 13, rcols = Math.floor(rain.width / fsz);
+    const drops = Array.from({length: rcols}, () => Math.floor(Math.random() * -40));
+    let rafId;
+    (function rainStep() {
+      rctx.fillStyle = 'rgba(0,0,0,0.05)';
+      rctx.fillRect(0, 0, rain.width, rain.height);
+      rctx.font = `${fsz}px monospace`;
+      drops.forEach((y, i) => {
+        rctx.fillStyle = y % 3 === 0 ? '#aaffaa' : '#00ff41';
+        rctx.fillText(rchars[Math.floor(Math.random() * rchars.length)], i * fsz, y * fsz);
+        if (y * fsz > rain.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      });
+      rafId = requestAnimationFrame(rainStep);
+    })();
+
+    requestAnimationFrame(() => requestAnimationFrame(() => { overlay.style.opacity = '1'; }));
+    setTimeout(() => { catCv.style.opacity = '1'; txt.style.opacity = '1'; sub.style.opacity = '1'; }, 500);
+
+    function dismiss() {
+      cancelAnimationFrame(rafId);
+      overlay.style.opacity = '0';
+      setTimeout(() => { overlay.remove(); leet = false; }, 500);
+    }
+    overlay.addEventListener('click', dismiss);
+    setTimeout(dismiss, 4500);
+  }
+
   document.addEventListener('keydown', e => {
     const k = e.key.length === 1 ? e.key.toLowerCase() : null;
     if (!k) return;
@@ -419,9 +525,10 @@ document.querySelector('.spaceHead').addEventListener("click", setBg);
     const s = buf.join('');
     if (s.endsWith(SPACE_MEOW)) { showSpaceCat(); buf = []; }
     else if (s.endsWith(MEOW)) { showCat(); buf = []; }
+    else if (s.endsWith('1337')) { show1337(); buf = []; }
   });
 
-  console.log('%c🐱 type "meow" · 🚀 type "spacemeow"', 'color:#d4813a;font-size:13px;font-family:courier');
+  console.log('%c🐱 "meow" · 🚀 "spacemeow" · 💻 "1337"', 'color:#00ff41;font-size:13px;font-family:monospace');
 })();
 </script>
 </body>
